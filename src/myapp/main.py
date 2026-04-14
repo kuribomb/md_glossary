@@ -54,10 +54,12 @@ def parse(text: str) -> tuple[list[str], list[Section]]:
     return all_lines[: heading_info[0][0]], root_sections
 
 
-def sort_sections(sections: list[Section]) -> list[Section]:
-    """セクションを再帰的にアルファベット順でソートする。"""
+def sort_sections(sections: list[Section], min_level: int = 1) -> list[Section]:
+    """セクションを再帰的にアルファベット順でソートする。min_level 未満のレベルはソートしない。"""
     for sec in sections:
-        sec.children = sort_sections(sec.children)
+        sec.children = sort_sections(sec.children, min_level)
+    if not sections or sections[0].level < min_level:
+        return sections
     return sorted(sections, key=lambda s: s.title.lower())
 
 
@@ -77,26 +79,37 @@ def render(root_body: list[str], sections: list[Section]) -> str:
     return "\n".join(lines)
 
 
-def sort_markdown(text: str) -> str:
+def sort_markdown(text: str, min_level: int = 1) -> str:
     """Markdownテキストの見出しをソートして返す。"""
     root_body, sections = parse(text)
-    sections = sort_sections(sections)
+    sections = sort_sections(sections, min_level)
     return render(root_body, sections)
 
 
 def main() -> None:
-    if len(sys.argv) >= 2:
-        path = Path(sys.argv[1])
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Markdownの見出しをアルファベット順にソートする")
+    parser.add_argument("file", nargs="?", help="入力ファイル（省略時はstdin）")
+    parser.add_argument("--inplace", action="store_true", help="ファイルを上書き保存")
+    parser.add_argument(
+        "--min-level", type=int, default=1, metavar="N",
+        help="ソート対象の最小見出しレベル（例: 3 なら H3 以上のみソート、デフォルト: 1）",
+    )
+    args = parser.parse_args()
+
+    if args.file:
+        path = Path(args.file)
         text = path.read_text(encoding="utf-8")
-        sorted_text = sort_markdown(text)
-        if "--inplace" in sys.argv:
+        sorted_text = sort_markdown(text, args.min_level)
+        if args.inplace:
             path.write_text(sorted_text, encoding="utf-8")
             print(f"Sorted: {path}", file=sys.stderr)
         else:
             print(sorted_text, end="")
     else:
         text = sys.stdin.read()
-        print(sort_markdown(text), end="")
+        print(sort_markdown(text, args.min_level), end="")
 
 
 if __name__ == "__main__":

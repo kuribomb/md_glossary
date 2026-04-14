@@ -52,3 +52,25 @@ def test_no_headings() -> None:
     """見出しがない場合はそのまま返すこと"""
     text = "単なるテキスト\nもう一行"
     assert sort_markdown(text) == text
+
+
+def test_min_level_skips_shallow() -> None:
+    """min_level より浅い見出しはソートされないこと"""
+    text = "# B\n## No3\n## No1\n# A\n## No2\n## No4"
+    # min_level=3 なら H1/H2 はソートされない → 元のまま
+    assert sort_markdown(text, min_level=3) == text
+
+
+def test_min_level_sorts_deep_only() -> None:
+    """min_level 以上の深い見出しのみソートされること"""
+    text = "# B\n### Z\n### A\n# A\n### Y\n### X"
+    # min_level=3: H1 はソートしない、H3 のみソート
+    expected = "# B\n### A\n### Z\n# A\n### X\n### Y"
+    assert sort_markdown(text, min_level=3) == expected
+
+
+def test_min_level_default_sorts_all() -> None:
+    """デフォルト(min_level=1)では全レベルがソートされること"""
+    text = "# B\n## No3\n## No1\n# A\n## No2\n## No4"
+    expected = "# A\n## No2\n## No4\n# B\n## No1\n## No3"
+    assert sort_markdown(text) == expected
