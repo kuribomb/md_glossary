@@ -1,0 +1,16 @@
+{
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "always",
+      "source.organizeImports.ruff": "always"
+    }
+  },
+  "python.languageServer": "Pylance",
+  "python.analysis.typeCheckingMode": "standard",
+  "python.analysis.autoImportCompletions": true,
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "ruff.enable": true,
+  "ruff.lint.enable": true
+}
