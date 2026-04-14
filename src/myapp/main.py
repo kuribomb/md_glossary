@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-
-HEADING_RE = re.compile(r"^(#{1,6})\s*(.*)")
+from markdown_it import MarkdownIt
 
 
 @dataclass
@@ -20,30 +18,40 @@ class Section:
 
 def parse(text: str) -> tuple[list[str], list[Section]]:
     """Markdownテキストをパースしてセクションツリーに変換する。"""
-    root_body: list[str] = []
-    sections: list[Section] = []
+    tokens = MarkdownIt().parse(text)
+    all_lines = text.splitlines()
+
+    # 見出しトークンから行番号・レベル・タイトルを収集
+    heading_info: list[tuple[int, int, str]] = [
+        (tok.map[0], int(tok.tag[1]), tokens[i + 1].content)
+        for i, tok in enumerate(tokens)
+        if tok.type == "heading_open" and tok.map is not None
+    ]
+
+    if not heading_info:
+        return all_lines, []
+
+    # 各見出しの body_lines を行番号範囲で切り出す
+    sections_flat: list[Section] = []
+    for idx, (line_no, level, title) in enumerate(heading_info):
+        next_heading = heading_info[idx + 1][0] if idx + 1 < len(heading_info) else len(all_lines)
+        sections_flat.append(Section(
+            heading=all_lines[line_no],
+            level=level,
+            title=title,
+            body_lines=all_lines[line_no + 1 : next_heading],
+        ))
+
+    # スタックで階層構造を構築
+    root_sections: list[Section] = []
     stack: list[Section] = []
+    for sec in sections_flat:
+        while stack and stack[-1].level >= sec.level:
+            stack.pop()
+        (stack[-1].children if stack else root_sections).append(sec)
+        stack.append(sec)
 
-    for line in text.splitlines():
-        m = HEADING_RE.match(line)
-        if m:
-            level = len(m.group(1))
-            title = m.group(2).strip()
-            section = Section(heading=line, level=level, title=title)
-            while stack and stack[-1].level >= level:
-                stack.pop()
-            if stack:
-                stack[-1].children.append(section)
-            else:
-                sections.append(section)
-            stack.append(section)
-        else:
-            if stack:
-                stack[-1].body_lines.append(line)
-            else:
-                root_body.append(line)
-
-    return root_body, sections
+    return all_lines[: heading_info[0][0]], root_sections
 
 
 def sort_sections(sections: list[Section]) -> list[Section]:

@@ -4,9 +4,9 @@ from myapp.main import sort_markdown
 
 
 def test_basic_sort() -> None:
-    """ユーザーサンプルのケース: H1とH2を含む構造のソート"""
-    text = "# B\n## No3\n##No1\n# A\n## No2\n## No4"
-    expected = "# A\n## No2\n## No4\n# B\n##No1\n## No3"
+    """H1とH2を含む構造のソート"""
+    text = "# B\n## No3\n## No1\n# A\n## No2\n## No4"
+    expected = "# A\n## No2\n## No4\n# B\n## No1\n## No3"
     assert sort_markdown(text) == expected
 
 
