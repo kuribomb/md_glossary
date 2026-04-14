@@ -1,38 +1,66 @@
 # python_template
 
-Python プロジェクト用テンプレートリポジトリ。
-用途に応じたブランチを選んでプロジェクトを開始する。
+小規模ツールをサクッと作れるリポジトリテンプレート
 
-## テンプレート一覧
+## 構成
 
-| ブランチ | 用途 | 主な技術 |
-|---|---|---|
-| [`python-base`](../../tree/python-base) | 汎用 Python ツール | Black, Ruff, Pytest |
-| [`python/fastapi`](../../tree/python/fastapi) | Web API | FastAPI, uvicorn, httpx |
-| [`python/svelte`](../../tree/python/svelte) | フルスタック Web | FastAPI + SvelteKit |
-| [`python/pyside6`](../../tree/python/pyside6) | デスクトップアプリ | PySide6, pytest-qt |
+- Python 3.12
+- [Ruff](https://docs.astral.sh/ruff/) — Linter / Formatter / import整理
+- [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.pylance) — 型チェック (standard)
+- [pytest](https://docs.pytest.org/) — テスト
+- src-layout (`src/myapp/`)
 
-## 使い方
+## セットアップ
 
-使いたいブランチを指定してクローンし、`.git` を削除して新規リポジトリとして開始する。
+### 1. テンプレートから新しいリポジトリを作成
+
+GitHub の "Use this template" からリポジトリを作成する。
+
+### 2. 環境構築（Windows）
 
 ```bat
-git clone --branch python/fastapi --single-branch https://github.com/kuribomb/python_template.git my-project
-cd my-project
-rmdir /s /q .git
-git init
-git add .
-git commit -m "Initial commit"
+setup.bat
 ```
 
-`python/fastapi` の部分を使いたいブランチ名に変える。
+venv の作成と dev 依存のインストールを一括で行う。
 
-## ブランチ構成
+### 3. venv を有効化（毎回）
 
+```bat
+.venv\Scripts\activate.bat
 ```
-main              ← このファイル（インデックス）
-python-base       ← 共通ベーステンプレート
-python/fastapi    ← python-base から派生
-python/svelte     ← python-base から派生
-python/pyside6    ← python-base から派生
+
+### 4. VSCode で開く
+
+```bat
+code .
 ```
+
+初回起動時に推奨拡張機能のインストールを促される。
+
+### 5. パッケージ名を変更する
+
+`src/myapp/` を `src/<your_package_name>/` にリネームし、以下を合わせて変更する。
+
+- `pyproject.toml` の `name` と `known-first-party`
+- `tests/test_main.py` の import
+
+## よく使うコマンド
+
+```bat
+# Lint
+ruff check src/ tests/
+
+# Format
+ruff format src/ tests/
+
+# Lint + import整理（自動修正）
+ruff check --fix src/ tests/
+
+# テスト
+pytest tests/ -v
+```
+
+## 環境変数
+
+`.env.example` を `.env` にコピーして値を設定する。`.env` はgitignoreされている。
