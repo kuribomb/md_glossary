@@ -79,6 +79,23 @@ result = render(root_body, sections)
 | `--inplace` | off | Overwrite file in place |
 | `--min-level N` | `1` | Sort only headings at level N and deeper |
 
+## Development
+
+Requires [uv](https://docs.astral.sh/uv/).
+
+```bash
+git clone https://github.com/kuribomb/md_glossary
+cd md_glossary
+uv sync          # creates .venv and installs all dependencies
+```
+
+```bash
+uv run ruff check src/ tests/       # lint
+uv run ruff format src/ tests/      # format
+uv run pytest tests/ -v             # test
+uv build                            # build wheel + sdist
+```
+
 ## Requirements
 
 - Python 3.12+
