@@ -34,13 +34,17 @@ def parse(text: str) -> tuple[list[str], list[Section]]:
     # 各見出しの body_lines を行番号範囲で切り出す
     sections_flat: list[Section] = []
     for idx, (line_no, level, title) in enumerate(heading_info):
-        next_heading = heading_info[idx + 1][0] if idx + 1 < len(heading_info) else len(all_lines)
-        sections_flat.append(Section(
-            heading=all_lines[line_no],
-            level=level,
-            title=title,
-            body_lines=all_lines[line_no + 1 : next_heading],
-        ))
+        next_heading = (
+            heading_info[idx + 1][0] if idx + 1 < len(heading_info) else len(all_lines)
+        )
+        sections_flat.append(
+            Section(
+                heading=all_lines[line_no],
+                level=level,
+                title=title,
+                body_lines=all_lines[line_no + 1 : next_heading],
+            )
+        )
 
     # スタックで階層構造を構築
     root_sections: list[Section] = []
@@ -89,11 +93,16 @@ def sort_markdown(text: str, min_level: int = 1) -> str:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Markdownの見出しをアルファベット順にソートする")
+    parser = argparse.ArgumentParser(
+        description="Markdownの見出しをアルファベット順にソートする"
+    )
     parser.add_argument("file", nargs="?", help="入力ファイル（省略時はstdin）")
     parser.add_argument("--inplace", action="store_true", help="ファイルを上書き保存")
     parser.add_argument(
-        "--min-level", type=int, default=1, metavar="N",
+        "--min-level",
+        type=int,
+        default=1,
+        metavar="N",
         help="ソート対象の最小見出しレベル（例: 3 なら H3 以上のみソート、デフォルト: 1）",
     )
     args = parser.parse_args()

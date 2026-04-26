@@ -1,11 +1,35 @@
 [project]
-name = "myapp"
+name = "md-glossary"
 version = "0.1.0"
+description = "Alphabetically sort Markdown section headings while preserving hierarchy"
+readme = "README.md"
 requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "kuribomb" }]
+keywords = ["markdown", "sort", "glossary", "documentation", "headings"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Documentation",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Utilities",
+]
 dependencies = ["markdown-it-py>=3.0"]
 
+[project.urls]
+Homepage = "https://github.com/kuribomb/md_glossary"
+Repository = "https://github.com/kuribomb/md_glossary"
+"Bug Tracker" = "https://github.com/kuribomb/md_glossary/issues"
+
+[project.scripts]
+md-glossary = "md_glossary.main:main"
+
 [project.optional-dependencies]
-dev = ["ruff", "pytest"]
+dev = ["ruff", "pytest", "build"]
 
 [build-system]
 requires = ["setuptools>=70"]
@@ -26,7 +50,7 @@ ignore = ["E501"]
 "**/__init__.py" = ["F401"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["myapp"]
+known-first-party = ["md_glossary"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
