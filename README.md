@@ -1,66 +1,106 @@
-# python_template
+# md-glossary
 
-小規模ツールをサクッと作れるリポジトリテンプレート
+Alphabetically sort Markdown section headings while preserving hierarchy and content.
 
-## 構成
+## Features
 
-- Python 3.12
-- [Ruff](https://docs.astral.sh/ruff/) — Linter / Formatter / import整理
-- [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.pylance) — 型チェック (standard)
-- [pytest](https://docs.pytest.org/) — テスト
-- src-layout (`src/myapp/`)
+- Sorts headings alphabetically (case-insensitive) at any nesting level
+- Preserves all body text beneath each heading
+- Preserves preamble text before the first heading
+- `--min-level` option to sort only headings at a specified depth and below
+- Works as both a Python library and a CLI tool
 
-## セットアップ
+## Installation
 
-### 1. テンプレートから新しいリポジトリを作成
-
-GitHub の "Use this template" からリポジトリを作成する。
-
-### 2. 環境構築（Windows）
-
-```bat
-setup.bat
+```bash
+pip install md-glossary
 ```
 
-venv の作成と dev 依存のインストールを一括で行う。
+## Usage
 
-### 3. venv を有効化（毎回）
+### CLI
 
-```bat
-.venv\Scripts\activate.bat
+```bash
+# Print sorted output to stdout
+md-glossary glossary.md
+
+# Sort in place
+md-glossary --inplace glossary.md
+
+# Sort only H3 and deeper (leave H1/H2 untouched)
+md-glossary --min-level 3 glossary.md
+
+# Read from stdin
+cat glossary.md | md-glossary
 ```
 
-### 4. VSCode で開く
+### Python API
 
-```bat
-code .
+```python
+from md_glossary import sort_markdown
+
+text = """
+# Zebra
+A large striped animal.
+
+# Apple
+A fruit.
+
+# Mango
+A tropical fruit.
+"""
+
+print(sort_markdown(text))
+# # Apple
+# A fruit.
+#
+# # Mango
+# A tropical fruit.
+#
+# # Zebra
+# A large striped animal.
 ```
 
-初回起動時に推奨拡張機能のインストールを促される。
+#### Lower-level API
 
-### 5. パッケージ名を変更する
+```python
+from md_glossary import parse, sort_sections, render
 
-`src/myapp/` を `src/<your_package_name>/` にリネームし、以下を合わせて変更する。
-
-- `pyproject.toml` の `name` と `known-first-party`
-- `tests/test_main.py` の import
-
-## よく使うコマンド
-
-```bat
-# Lint
-ruff check src/ tests/
-
-# Format
-ruff format src/ tests/
-
-# Lint + import整理（自動修正）
-ruff check --fix src/ tests/
-
-# テスト
-pytest tests/ -v
+root_body, sections = parse(text)
+sections = sort_sections(sections, min_level=2)  # sort H2 and below only
+result = render(root_body, sections)
 ```
 
-## 環境変数
+## Options
 
-`.env.example` を `.env` にコピーして値を設定する。`.env` はgitignoreされている。
+| Option | Default | Description |
+|---|---|---|
+| `file` | stdin | Input Markdown file |
+| `--inplace` | off | Overwrite file in place |
+| `--min-level N` | `1` | Sort only headings at level N and deeper |
+
+## Development
+
+Requires [uv](https://docs.astral.sh/uv/).
+
+```bash
+git clone https://github.com/kuribomb/md_glossary
+cd md_glossary
+uv sync          # creates .venv and installs all dependencies
+```
+
+```bash
+uv run ruff check src/ tests/       # lint
+uv run ruff format src/ tests/      # format
+uv run pytest tests/ -v             # test
+uv build                            # build wheel + sdist
+```
+
+## Requirements
+
+- Python 3.12+
+- [markdown-it-py](https://github.com/executablebooks/markdown-it-py) >= 3.0
+
+## License
+
+MIT

@@ -1,6 +1,4 @@
-import pytest
-
-from myapp.main import sort_markdown
+from md_glossary.main import sort_markdown
 
 
 def test_basic_sort() -> None:
